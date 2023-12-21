@@ -11,41 +11,36 @@ const mintStr = process.env.MINT_STR;
 const utf8Bytes = Buffer.from(mintStr, 'utf-8');
 // 将字节转换为十六进制表示的字符串
 const hexStr = '0x' + utf8Bytes.toString('hex');
+const totalTimes = process.env.NUMBER_OF_TIMES;
 
 // 每次交易都获取实时gas和nonce
 async function performTransaction(walletInfo, numberOfTimes) {
-    let successNum = 0;
-    let failNum = 0;
-
+    const nonce = await provider.getTransactionCount(walletInfo.address);
+    const gasPrice = await provider.getGasPrice();
+    const gasEstimate = await provider.estimateGas({
+        to: walletInfo.address,
+        value: amount,
+        data: hexStr,
+    });
+    let numberOfFinish = totalTimes - numberOfTimes;
     for (let i = 0; i < numberOfTimes; i++) {
+        numberOfFinish = numberOfFinish + 1;
         try {
-            const nonce = await provider.getTransactionCount(walletInfo.address);
-
-            const gasPrice = await provider.getGasPrice();
-            const gasEstimate = await provider.estimateGas({
-                to: walletInfo.address,
-                value: amount,
-                data: hexStr,
-            });
-
             const transaction = {
                 to: walletInfo.address,
                 value: amount,
                 gasPrice: gasPrice,
-                nonce: nonce,
+                nonce: nonce + numberOfFinish - 1,
                 gasLimit: gasEstimate,
                 data: hexStr,
             };
 
             const wallet = new ethers.Wallet(walletInfo.privateKey, provider)
-            const receipt = await wallet.sendTransaction(transaction);
-            //console.log(receipt)
-            const result =  await receipt.wait();
-            successNum = successNum + 1;
-            console.log(`本次脚本运行第 ${walletInfo.num} 个地址 ${walletInfo.address} 第 ${i + 1} 次操作成功，共成功 ${successNum} 次，共失败 ${failNum} 次，交易哈希: ${result.transactionHash} `);
+            await wallet.sendTransaction(transaction);
+            console.log(`第 ${walletInfo.num} 个地址 ${walletInfo.address} 第 ${numberOfFinish} 次操作成功.`);
         } catch (error) {
-            failNum = failNum + 1;
-            console.error(`本次脚本运行第 ${walletInfo.num} 个地址 ${walletInfo.address} 第 ${i + 1} 次操作失败，共成功 ${successNum} 次，共失败 ${failNum} 次: `, error);
+            console.error(`第 ${walletInfo.num} 个地址 ${walletInfo.address} 第 ${numberOfFinish} 次操作失败: `, error);
+            await performTransaction(walletInfo, totalTimes - numberOfFinish);
         }
     }
 }
@@ -58,7 +53,7 @@ async function main() {
         console.log('未找到 evm_wallets.json 文件');
     }
 
-    Promise.all(walletData.map(wallet => performTransaction(wallet, process.env.NUMBER_OF_TIMES)))
+    Promise.all(walletData.map(wallet => performTransaction(wallet, totalTimes)))
         .then(() => {
             console.log("所有操作完成");
         })
