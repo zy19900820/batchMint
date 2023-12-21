@@ -4,6 +4,20 @@
 
 本脚本批量生成钱包、批量打印地址以及批量打印私钥的规则与metamask完全相同，你可以将助记词导入到metamask并创建多个账户，顺序与脚本生成的完全一致。
 
+## 安装
+### 安装 nodejs
+
+https://nodejs.org/en/download/
+
+### 安装 yarn
+先进入到根目录再执行
+```
+npm install -g yarn
+```
+```
+yarn install
+```
+
 ## 配置环境变量
 修改 .env 文件，并填写所有信息
 
