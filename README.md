@@ -11,14 +11,10 @@ node genMnemonic.js
 ```
 生成助记词会保存在 mnemonic.json 文件中
 
-## 根据助记词批量打印地址
-```
-node printAddressByMnemonic.js
-```
 
-## 根据助记词批量打印私钥
+## 根据助记词批量打印私钥 地址
 ```
-node printPrivateKeyByMnemonic.js
+node printInfoByMnemonic.js
 ```
 
 ## 钱包批量生成
