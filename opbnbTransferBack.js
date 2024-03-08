@@ -20,7 +20,8 @@ async function performTransaction(walletInfo) {
 
             const transaction = {
                 to: process.env.ADDRESS,
-                value: balance.sub(gasPrice.mul(gasEstimate)).sub(ethers.utils.parseUnits("6000", "gwei")),
+                value: balance.sub(gasPrice.mul(gasEstimate)),
+                //value: balance.sub(gasPrice.mul(gasEstimate)).sub(ethers.utils.parseUnits("6000", "gwei")),
                 gasPrice: gasPrice,
                 nonce: nonce,
                 gasLimit: gasEstimate,
